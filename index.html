@@ -1,0 +1,38 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Code Saver</title>
+  <style>body{font-family:system-ui,Arial;margin:40px;max-width:420px}
+  input,button{font-size:18px;padding:10px;margin:6px 0}</style>
+</head>
+<body data-supabase-url="https://YOUR-PROJECT.supabase.co"
+      data-supabase-anon-key="YOUR_ANON_KEY">
+  <h1>Enter a 4-digit code</h1>
+  <form id="f">
+    <input id="code" type="text" inputmode="numeric" pattern="[0-9]{4}"
+           maxlength="4" placeholder="1234" required />
+    <button>Save</button>
+  </form>
+  <p id="msg"></p>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const url = document.body.dataset.supabaseUrl;
+    const key = document.body.dataset.supabaseAnonKey;
+    const supa = supabase.createClient(url, key);
+
+    const f = document.getElementById('f');
+    const msg = document.getElementById('msg');
+    f.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const code = document.getElementById('code').value.trim();
+      // quick front-end guard too
+      if (!/^\d{4}$/.test(code)) { msg.textContent = 'Enter exactly 4 digits.'; return; }
+      const { error } = await supa.from('test_codes').insert({ code });
+      if (error) msg.textContent = '❌ ' + error.message;
+      else { msg.textContent = '✅ Saved!'; f.reset(); }
+    });
+  </script>
+</body>
+</html>
